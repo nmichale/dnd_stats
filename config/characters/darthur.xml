@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<character>
+    <name>Darthur</name>
+    <class>Wizard</class>
+    <race>Tiefling</race>
+    <level>4</level>
+    <modifiers>
+        <str>1</str>
+        <dex>3</dex>
+        <con>2</con>
+        <int>4</int>
+        <wis>2</wis>
+        <cha>3</cha>
+    </modifiers>
+</character>
