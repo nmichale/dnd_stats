@@ -38,20 +38,20 @@
         <level>1</level>
         <class>Wizard</class>
         <attack hit_type="auto" times="3" level_bonus="1">
-            <roll>
+            <roll plus="1">
                 <num>1</num>
                 <sides>4</sides>
-                <bonus>1</bonus>
             </roll>
         </attack>
     </spell>
     <spell>
         <name>Fire Ball</name>
         <level>3</level>
-        <attack hit_type="saving_throw" times="1" level_bonus="1" half_dmg_fail="True">
+        <class>Wizard</class>
+        <attack hit_type="saving_throw" times="1" half_dmg_fail="True" modifier="dex">
             <roll>
-                <num level_bonus="1">6</num>
-                <sides>8</sides>
+                <num level_bonus="1">8</num>
+                <sides>6</sides>
             </roll>
             <radius>20</radius>
         </attack>
