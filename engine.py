@@ -2,6 +2,7 @@ from lxml import objectify
 import os
 from enemy import Enemy
 import random
+import numpy as np
 
 class_modifier = {
     'Wizard': 'int',
@@ -17,7 +18,7 @@ class Engine(object):
 
         self.character = self.character_xml.getroot()
         self.spellbook = self.spellbook_xml.getroot()
-        self.spell_names = self.spellbook_xml.findall('./spell/name')
+        self.spell_names = [node.text for node in self.spellbook_xml.findall('./spell/name')]
         self.character.proficiency = self.character.level % 4 + 2
 
     def _roll(self, sides):
@@ -39,7 +40,7 @@ class Engine(object):
         chance = max(min(float(num)/float(den),1),0)
         return chance
 
-    def cast_spell(self, spell, enemy, slot_level=2, sim=False):
+    def cast_spell(self, spell, enemy, slot_level=2, advantage=False, sim=False):
         if isinstance(spell, basestring):
             spell = self.get_spell(spell)
 
@@ -57,18 +58,46 @@ class Engine(object):
             attack_damage = 0
             attack_times = int(attack.attrib.get('times', 1)) + higher_slot * int(attack.attrib.get('level_bonus', 0))
             for i in range(attack_times):
+                hit_chance = 0
                 spell_dc = self.character.modifiers[class_modifier[spell_class]] + self.character.proficiency
                 if hit_type == 'spell_attack':
-                    num = 20 + spell_dc - enemy.armor_class + 1
-                    hit_chance = self._hit_chance(num)
+                    if sim:
+                        hit_roll = self._roll(20)
+
+                        if advantage:
+                            hit_roll2 = self._roll(20)
+                            hit_roll = max(hit_roll, hit_roll2)
+
+                        if hit_roll + spell_dc >= enemy.armor_class:
+                            hit_chance = 1
+                    else:
+                        num = 20 + spell_dc - enemy.armor_class + 1
+                        hit_chance = self._hit_chance(num)
                 elif hit_type == 'saving_throw':
                     enemy_mod = float(enemy.modifiers[attack.attrib['modifier']])
-                    num = 8 + spell_dc - enemy_mod - 1
-                    hit_chance = self._hit_chance(num)
+                    to_beat = 8 + spell_dc
+                    if sim:
+                        saving_roll = self._roll(20)
+
+                        if advantage:
+                            saving_roll2 = self._roll(20)
+                            saving_roll = min(saving_roll, saving_roll2)
+
+                        if to_beat > saving_roll + enemy_mod:
+                            hit_chance = 1
+                    else:
+                        num = to_beat - enemy_mod - 1
+                        hit_chance = self._hit_chance(num)
                 elif hit_type == 'auto':
                     hit_chance = 1
                 else:
                     raise NotImplementedError
+
+                if hit_chance <= 0:
+                    continue
+
+                if not sim and advantage:
+                    hit_chance = 1 - (1 - hit_chance)**2
 
                 rolls = 0
                 for die in attack.roll:
@@ -82,14 +111,12 @@ class Engine(object):
                         roll = num * (self._exp_v_die(die.sides) + bonus)
                         rolls += roll
 
-                attack_damage = float(hit_chance) * rolls
-
-                print(hit_chance, rolls)
+                attack_damage += float(hit_chance) * rolls
 
                 if hit_type == 'saving_throw' and bool(attack.attrib.get('half_dmg_fail', False)):
-                    attack_damage += (1.0 - hit_chance) * (attack_damage / 2.0)
+                    attack_damage += (1.0 - hit_chance) * (rolls / 2.0)
 
-                damage += attack_damage
+            damage += attack_damage
 
         return damage
 
@@ -107,8 +134,11 @@ def main():
     enemy = Enemy(default_armor_class, default_modifiers)
 
     print(eng.cast_spell('Chromatic Orb', enemy, slot_level=2))
+    print(np.mean([eng.cast_spell('Chromatic Orb', enemy, slot_level=2) for i in range(10000)]))
     print(eng.cast_spell('Magic Missile', enemy, slot_level=2))
+    print(np.mean([eng.cast_spell('Magic Missile', enemy, slot_level=2) for i in range(10000)]))
     print(eng.cast_spell('Fire Ball', enemy, slot_level=3))
+    print(np.mean([eng.cast_spell('Fire Ball', enemy, slot_level=3) for i in range(10000)]))
 
 if __name__ == '__main__':
      main()
