@@ -93,52 +93,51 @@ class Engine(object):
                 else:
                     raise NotImplementedError
 
-                if hit_chance <= 0:
+                half_dmg_fail = bool(attack.attrib.get('half_dmg_fail', False))
+                if hit_chance <= 0 and not half_dmg_fail:
                     continue
 
+                crit_chance = 1.0/20.0
+
+                if hit_type == 'spell_attack':
+                    hit_chance -= crit_chance
+
                 if not sim and advantage:
-                    hit_chance = 1 - (1 - hit_chance)**2
+                    if hit_type == 'spell_attack':
+                        no_hit_chance = (1 - hit_chance - crit_chance)**2
+                        crit_chance = 39.0/400.0
+                        hit_chance = 1 - no_hit_chance - crit_chance
+                    else:
+                        hit_chance = 1 - (1 - hit_chance) ** 2
 
                 rolls = 0
                 for die in attack.roll:
                     bonus = float(die.get('plus', 0))
+                    num = die.num
+                    num_bonus = die.get('level_bonus', False)
+                    if num_bonus:
+                        num += higher_slot * num_bonus
+
+                    # Critical Hit
+                    if sim and hit_type == 'spell_attack' and hit_roll == 20:
+                        num *= 2
+
                     if not sim:
-                        num = die.num
-                        num_bonus = die.get('level_bonus', False)
-                        if num_bonus:
-                            num += higher_slot * num_bonus
-
-                        roll = num * (self._exp_v_die(die.sides) + bonus)
+                        single_roll = (self._exp_v_die(die.sides) + bonus)
+                        roll = num * single_roll
                         rolls += roll
+                    else:
+                        for n in range(num):
+                            rolls += self._roll(die.sides) + bonus
 
-                attack_damage += float(hit_chance) * rolls
+                if not sim and hit_type == 'spell_attack':
+                    attack_damage += (crit_chance * rolls * 2) + ((hit_chance - crit_chance) * rolls)
+                else:
+                    attack_damage += float(hit_chance) * rolls
 
-                if hit_type == 'saving_throw' and bool(attack.attrib.get('half_dmg_fail', False)):
+                if hit_type == 'saving_throw' and half_dmg_fail:
                     attack_damage += (1.0 - hit_chance) * (rolls / 2.0)
 
             damage += attack_damage
 
         return damage
-
-def main():
-    default_modifiers = {
-        'str': 0,
-        'dex': 0,
-        'con': 0,
-        'int': 0,
-        'wis': 0,
-        'cha': 0
-    }
-    default_armor_class = 10
-    eng = Engine('Darthur')
-    enemy = Enemy(default_armor_class, default_modifiers)
-
-    print(eng.cast_spell('Chromatic Orb', enemy, slot_level=2))
-    print(np.mean([eng.cast_spell('Chromatic Orb', enemy, slot_level=2) for i in range(10000)]))
-    print(eng.cast_spell('Magic Missile', enemy, slot_level=2))
-    print(np.mean([eng.cast_spell('Magic Missile', enemy, slot_level=2) for i in range(10000)]))
-    print(eng.cast_spell('Fire Ball', enemy, slot_level=3))
-    print(np.mean([eng.cast_spell('Fire Ball', enemy, slot_level=3) for i in range(10000)]))
-
-if __name__ == '__main__':
-     main()

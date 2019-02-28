@@ -3,6 +3,8 @@ import numpy as np
 from engine import Engine
 from enemy import Enemy
 
+eng = Engine('Darthur')
+
 class UnitTests(unittest.TestCase):
     default_modifiers = {
         'str': 0,
@@ -13,25 +15,30 @@ class UnitTests(unittest.TestCase):
         'cha': 0
     }
     default_armor_class = 10
-    eng = Engine('Darthur')
     test_enemy1 = Enemy(default_armor_class, default_modifiers)
 
-    def test_sim_equals_exp_v(self):
-        SLOT_LEVEL = 3
-        SIMS = 10000
 
-        for spell in self.eng.spell_names:
-            exp_v = self.eng.cast_spell(spell, self.test_enemy1, slot_level=SLOT_LEVEL)
-            sim_avg = np.mean([self.eng.cast_spell(spell, self.test_enemy1, slot_level=SLOT_LEVEL) for i in range(SIMS)])
+    def test_all_spells(function):
+        def wrapper(self):
+            for spell in eng.spell_names:
+                exp_v, sim_avg = function(self, spell)
+                self.assertAlmostEqual(round(exp_v, 1), round(sim_avg, 1), delta=0.3)
+                print('Passed {}. {} ~= {}'.format(spell, exp_v, sim_avg))
 
-            self.assertAlmostEqual(exp_v, sim_avg, places=4)
+        return wrapper
 
-    def test_sim_equals_exp_v_advantagve(self):
-        SLOT_LEVEL = 3
-        SIMS = 10000
+    @test_all_spells
+    def test_sim_equals_exp_v(self, spell, slot_level=3, sims=10000):
+        exp_v = eng.cast_spell(spell, self.test_enemy1, slot_level=slot_level)
+        sim_avg = np.mean([eng.cast_spell(spell, self.test_enemy1, slot_level=slot_level, sim=True)
+                           for i in range(sims)])
 
-        for spell in self.eng.spell_names:
-            exp_v = self.eng.cast_spell(spell, self.test_enemy1, slot_level=SLOT_LEVEL, advantage=True)
-            sim_avg = np.mean([self.eng.cast_spell(spell, self.test_enemy1, slot_level=SLOT_LEVEL, advantage=True) for i in range(SIMS)])
+        return exp_v, sim_avg
 
-            self.assertAlmostEqual(exp_v, sim_avg, places=4)
+    @test_all_spells
+    def test_sim_equals_exp_v_advantagve(self, spell, slot_level=3, sims=10000):
+        exp_v = eng.cast_spell(spell, self.test_enemy1, slot_level=slot_level, advantage=True)
+        sim_avg = np.mean([eng.cast_spell(spell, self.test_enemy1, slot_level=slot_level, sim=True, advantage=True)
+                           for i in range(sims)])
+
+        return exp_v, sim_avg
