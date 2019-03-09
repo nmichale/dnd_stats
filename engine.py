@@ -3,6 +3,7 @@ import os
 from enemy import Enemy
 import random
 import numpy as np
+import pandas as pd
 
 class_modifier = {
     'Wizard': 'int',
@@ -36,7 +37,7 @@ class Engine(object):
         else:
             return self.exp_v_die(sides)
 
-    def _hit_chance(self, num, den=20, sim=False):
+    def _hit_chance(self, num, den=20):
         chance = max(min(float(num)/float(den),1),0)
         return chance
 
@@ -48,7 +49,7 @@ class Engine(object):
         spell_level = spell['level']
 
         if spell_level > slot_level:
-            return None
+            return 0
 
         higher_slot = slot_level - spell_level
 
@@ -97,25 +98,26 @@ class Engine(object):
                 if hit_chance <= 0 and not half_dmg_fail:
                     continue
 
-                crit_chance = 1.0/20.0
+                if not sim:
+                    crit_chance = 1.0/20.0
 
-                if hit_type == 'spell_attack':
-                    hit_chance -= crit_chance
-
-                if not sim and advantage:
                     if hit_type == 'spell_attack':
-                        no_hit_chance = (1 - hit_chance - crit_chance)**2
-                        crit_chance = 39.0/400.0
-                        hit_chance = 1 - no_hit_chance - crit_chance
-                    else:
-                        hit_chance = 1 - (1 - hit_chance) ** 2
+                        hit_chance -= crit_chance
+
+                    if advantage:
+                        if hit_type == 'spell_attack':
+                            no_hit_chance = (1 - hit_chance - crit_chance)**2
+                            crit_chance = 39.0/400.0
+                            hit_chance = 1 - no_hit_chance - crit_chance
+                        else:
+                            hit_chance = 1 - (1 - hit_chance) ** 2
 
                 rolls = 0
                 for die in attack.roll:
                     bonus = float(die.get('plus', 0))
                     num = die.num
-                    num_bonus = die.get('level_bonus', False)
-                    if num_bonus:
+                    num_bonus = int(die.num.get('level_bonus', 0))
+                    if num_bonus > 0:
                         num += higher_slot * num_bonus
 
                     # Critical Hit
@@ -131,7 +133,7 @@ class Engine(object):
                             rolls += self._roll(die.sides) + bonus
 
                 if not sim and hit_type == 'spell_attack':
-                    attack_damage += (crit_chance * rolls * 2) + ((hit_chance - crit_chance) * rolls)
+                    attack_damage += (crit_chance * rolls * 2) + ((hit_chance) * rolls)
                 else:
                     attack_damage += float(hit_chance) * rolls
 
@@ -141,3 +143,9 @@ class Engine(object):
             damage += attack_damage
 
         return damage
+
+    def evaluate_spells_exp_v(self, enemy, slot_level=2, advantage=False):
+        return [self.cast_spell(sp, enemy, slot_level, advantage) for sp in self.spell_names]
+
+    def evaluate_spells_sim(self, enemy, slot_level=2, advantage=False, sims=10000):
+        return [[self.cast_spell(sp, enemy, slot_level, advantage, sim=True) for i in range(sims)] for sp in self.spell_names]

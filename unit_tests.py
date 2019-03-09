@@ -18,11 +18,15 @@ class UnitTests(unittest.TestCase):
     test_enemy1 = Enemy(default_armor_class, default_modifiers)
 
 
+    def test_one_spell(self):
+        print(eng.cast_spell('Chromatic Orb', self.test_enemy1, slot_level=3))
+
     def test_all_spells(function):
         def wrapper(self):
             for spell in eng.spell_names:
+                print('Testing {}...'.format(spell))
                 exp_v, sim_avg = function(self, spell)
-                self.assertAlmostEqual(round(exp_v, 1), round(sim_avg, 1), delta=0.3)
+                self.assertAlmostEqual(exp_v, sim_avg, delta=0.2)
                 print('Passed {}. {} ~= {}'.format(spell, exp_v, sim_avg))
 
         return wrapper
@@ -36,7 +40,7 @@ class UnitTests(unittest.TestCase):
         return exp_v, sim_avg
 
     @test_all_spells
-    def test_sim_equals_exp_v_advantagve(self, spell, slot_level=3, sims=10000):
+    def test_sim_equals_exp_v_advantage(self, spell, slot_level=3, sims=10000):
         exp_v = eng.cast_spell(spell, self.test_enemy1, slot_level=slot_level, advantage=True)
         sim_avg = np.mean([eng.cast_spell(spell, self.test_enemy1, slot_level=slot_level, sim=True, advantage=True)
                            for i in range(sims)])
