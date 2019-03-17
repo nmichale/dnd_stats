@@ -1,0 +1,54 @@
+version: '2'
+services:
+  web1:
+    build: .
+    image: dnd_stats:latest
+    ports:
+      - "8000"
+    restart: always
+    mem_limit: 4gb
+    volumes:
+      - /tmp:/tmp
+  web2:
+    build: .
+    image: dnd_stats:latest
+    ports:
+      - "8000"
+    restart: always
+    mem_limit: 4gb
+    volumes:
+      - /tmp:/tmp
+  web3:
+    build: .
+    image: dnd_stats:latest
+    ports:
+      - "8000"
+    restart: always
+    mem_limit: 4gb
+    volumes:
+      - /tmp:/tmp
+  web4:
+    build: .
+    image: dnd_stats:latest
+    ports:
+      - "8000"
+    restart: always
+    mem_limit: 4gb
+    volumes:
+      - /tmp:/tmp
+  nginx:
+    image: "nginx:alpine"
+    ports:
+      - "8000:80"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf
+      - ./app/static:/static
+    restart: always
+    depends_on:
+      - web1
+      - web2
+      - web3
+      - web4
+  redis:
+    image: "redis:alpine"
+    restart: always

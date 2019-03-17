@@ -1,0 +1,53 @@
+swagger: "2.0"
+info:
+  description: "Webservice template."
+  version: "1.0.0"
+  title: "Template Webservice API"
+basePath: "/api"
+consumes:
+  - "application/json"
+produces:
+  - "application/json"
+  - "text/csv"
+
+paths:
+  /example:
+    get:
+      tags:
+        - "Example"
+      summary: "Example route"
+      operationId: "api.example"
+      parameters:
+        - $ref: '#/parameters/parameter'
+      responses:
+        200:
+          $ref: '#/responses/success'
+
+parameters:
+  parameter:
+    description: Example
+    name: parameter
+    in: query
+    required: false
+    type: string
+
+responses:
+  success:
+    description: Successful response.
+    schema:
+      $ref: '#/definitions/response_array'
+
+definitions:
+  response_array:
+    type: array
+    items:
+      $ref: '#/definitions/response'
+  response:
+    description: Response.
+    type: object
+    properties:
+      success:
+        type: boolean
+      message:
+        type: string
+

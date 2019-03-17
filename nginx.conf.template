@@ -1,0 +1,35 @@
+events {
+     worker_connections 1024;
+}
+
+http {
+
+    upstream cluster {
+    {% for i in range(1,replicas+1) %}
+	    server web{{ i }}:8000;
+	{% endfor %}
+    }
+
+    server {
+        listen 80;
+        location /ui/static/{
+            include /etc/nginx/mime.types;
+		    alias /static/;
+        }
+
+        location /static/{
+            include /etc/nginx/mime.types;
+            alias /static/;
+	    }
+
+        location / {
+            proxy_read_timeout 7200s; #Keep this long, experimental
+            proxy_set_header Host            $http_host;
+            proxy_set_header X-Real-IP       $remote_addr;
+            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+            proxy_pass http://cluster;
+        }
+
+
+    }
+}

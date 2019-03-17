@@ -1,4 +1,15 @@
 ipywidgets==7.4.2
 matplotlib==2.2.3
 numpy==1.15.4
-pandas
+pandas==24.1
+flask==1.0.2
+werkzeug==0.14.1
+bjoern==2.2.1
+click==6.7
+Flask-Cors==3.0.2
+dogpile.cache==0.6.2
+redis==2.10.5
+connexion==2.2.0
+ujson==1.35
+futures==3.2.0
+requests==2.21.0

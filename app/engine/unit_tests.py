@@ -1,6 +1,6 @@
 import unittest
 import numpy as np
-from engine import Engine
+from app.engine import Engine
 from enemy import Enemy
 
 eng = Engine('Darthur')

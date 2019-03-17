@@ -14,8 +14,8 @@ path = os.path.dirname(os.path.realpath(__file__))
 
 class Engine(object):
     def __init__(self, character_name):
-        self.character_xml = objectify.parse('{}/config/characters/{}.xml'.format(path, character_name.lower()))
-        self.spellbook_xml = objectify.parse('{}/config/actions/{}.xml'.format(path, 'spells'))
+        self.character_xml = objectify.parse('{}/dnd_config/characters/{}.xml'.format(path, character_name.lower()))
+        self.spellbook_xml = objectify.parse('{}/dnd_config/actions/{}.xml'.format(path, 'spells'))
 
         self.character = self.character_xml.getroot()
         self.spellbook = self.spellbook_xml.getroot()
