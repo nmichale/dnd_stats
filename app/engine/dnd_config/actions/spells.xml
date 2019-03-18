@@ -6,7 +6,7 @@
         <class>Wizard</class>
         <attack hit_type="spell_attack" times="1">
             <roll>
-                <num>1</num>
+                <num>2</num>
                 <sides>10</sides>
             </roll>
         </attack>
@@ -48,12 +48,45 @@
         <name>Fire Ball</name>
         <level>3</level>
         <class>Wizard</class>
-        <attack hit_type="saving_throw" times="1" half_dmg_fail="True" modifier="dex">
+        <attack hit_type="saving_throw" times="1" half_dmg_fail="True" modifier="dex" radius="20">
             <roll>
                 <num level_bonus="1">8</num>
                 <sides>6</sides>
             </roll>
-            <radius>20</radius>
+        </attack>
+    </spell>
+    <spell>
+        <name>Witch Bolt</name>
+        <level>1</level>
+        <class>Wizard</class>
+        <attack hit_type="spell_attack" times="1">
+            <roll>
+                <num level_bonus="1">1</num>
+                <sides>12</sides>
+            </roll>
+        </attack>
+        <attack continuing="True" hit_type="auto">
+            <roll>
+                <num>1</num>
+                <sides>12</sides>
+            </roll>
+        </attack>
+    </spell>
+    <spell>
+        <name>Melf's Minute Meteors</name>
+        <level>3</level>
+        <class>Wizard</class>
+        <attack hit_type="saving_throw" times="2" half_dmg_fail="True" modifier="dex" radius="5">
+            <roll>
+                <num>2</num>
+                <sides>6</sides>
+            </roll>
+        </attack>
+        <attack continuing="True" max_rounds="3" level_bonus="2" hit_type="saving_throw" modifier="dex" radius="5">
+            <roll>
+                <num>4</num>
+                <sides>6</sides>
+            </roll>
         </attack>
     </spell>
 </spell_book>

@@ -10,6 +10,7 @@ import sqltap.wsgi
 import cache
 from cache import cache_region
 import git_repo
+from ipywidgets.embed import embed_minimal_html
 
 UPLOAD_FOLDER = '/tmp'
 
@@ -25,7 +26,6 @@ app.wsgi_app = ProxyFix(app.wsgi_app)
 
 @app.route('/', endpoint='index', methods = ['GET', 'POST'])
 def index():
-
 
     return render_template('index.html', sha=git_repo.sha)
 

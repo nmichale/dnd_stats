@@ -1,6 +1,6 @@
 import unittest
 import numpy as np
-from app.engine import Engine
+from engine import Engine
 from enemy import Enemy
 
 eng = Engine('Darthur')
@@ -19,14 +19,15 @@ class UnitTests(unittest.TestCase):
 
 
     def test_one_spell(self):
-        print(eng.cast_spell('Chromatic Orb', self.test_enemy1, slot_level=3))
+        print(eng.cast_spell('Fire Ball', self.test_enemy1, slot_level=3, range_enemies=1))
+
 
     def test_all_spells(function):
         def wrapper(self):
             for spell in eng.spell_names:
                 print('Testing {}...'.format(spell))
                 exp_v, sim_avg = function(self, spell)
-                self.assertAlmostEqual(exp_v, sim_avg, delta=0.2)
+                self.assertAlmostEqual(exp_v, sim_avg, delta=0.3)
                 print('Passed {}. {} ~= {}'.format(spell, exp_v, sim_avg))
 
         return wrapper
@@ -44,5 +45,22 @@ class UnitTests(unittest.TestCase):
         exp_v = eng.cast_spell(spell, self.test_enemy1, slot_level=slot_level, advantage=True)
         sim_avg = np.mean([eng.cast_spell(spell, self.test_enemy1, slot_level=slot_level, sim=True, advantage=True)
                            for i in range(sims)])
+
+        return exp_v, sim_avg
+
+    @test_all_spells
+    def test_sim_equals_exp_multiround(self, spell, slot_level=3, sims=10000):
+        exp_v = eng.cast_spell(spell, self.test_enemy1, slot_level=slot_level, advantage=True, rounds=5)
+        sim_avg = np.mean([eng.cast_spell(spell, self.test_enemy1, slot_level=slot_level, sim=True, advantage=True, rounds=5)
+                           for i in range(sims)])
+
+        return exp_v, sim_avg
+
+    @test_all_spells
+    def test_sim_equals_exp_radius(self, spell, slot_level=3, sims=10000):
+        exp_v = eng.cast_spell(spell, self.test_enemy1, slot_level=slot_level, advantage=True, range_enemies=3)
+        sim_avg = np.mean(
+            [eng.cast_spell(spell, self.test_enemy1, slot_level=slot_level, sim=True, advantage=True, range_enemies=3)
+             for i in range(sims)])
 
         return exp_v, sim_avg

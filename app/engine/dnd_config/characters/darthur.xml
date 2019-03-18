@@ -3,7 +3,7 @@
     <name>Darthur</name>
     <class>Wizard</class>
     <race>Tiefling</race>
-    <level>4</level>
+    <level>5</level>
     <modifiers>
         <str>1</str>
         <dex>3</dex>

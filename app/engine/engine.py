@@ -41,7 +41,7 @@ class Engine(object):
         chance = max(min(float(num)/float(den),1),0)
         return chance
 
-    def cast_spell(self, spell, enemy, slot_level=2, advantage=False, sim=False):
+    def cast_spell(self, spell, enemy, slot_level=2, advantage=False, sim=False, rounds=1, range_enemies=1):
         if isinstance(spell, basestring):
             spell = self.get_spell(spell)
 
@@ -55,10 +55,28 @@ class Engine(object):
 
         damage = 0
         for attack in spell.attack:
+
+            continuing_bonus = 0
+            continuing = bool(attack.get('continuing', False))
+
+            if continuing and rounds <= 1:
+                continue
+
+            max_rounds = float(attack.get('max_rounds', np.inf))
+
+            if continuing or spell_level == 0:
+                continuing_bonus += int(min(rounds - 1, max_rounds - 1))
+
             hit_type = attack.attrib['hit_type']
             attack_damage = 0
             attack_times = int(attack.attrib.get('times', 1)) + higher_slot * int(attack.attrib.get('level_bonus', 0))
-            for i in range(attack_times):
+
+            enemy_bonus = 0
+            if attack.get('radius'):
+                enemy_bonus += range_enemies - 1
+
+            total_times = attack_times + enemy_bonus + continuing_bonus
+            for i in range(total_times):
                 hit_chance = 0
                 spell_dc = self.character.modifiers[class_modifier[spell_class]] + self.character.proficiency
                 if hit_type == 'spell_attack':
@@ -144,8 +162,9 @@ class Engine(object):
 
         return damage
 
-    def evaluate_spells_exp_v(self, enemy, slot_level=2, advantage=False):
-        return [self.cast_spell(sp, enemy, slot_level, advantage) for sp in self.spell_names]
+    def evaluate_spells_exp_v(self, **kwargs):
+        return [self.cast_spell(sp, **kwargs) for sp in self.spell_names]
 
-    def evaluate_spells_sim(self, enemy, slot_level=2, advantage=False, sims=10000):
-        return [[self.cast_spell(sp, enemy, slot_level, advantage, sim=True) for i in range(sims)] for sp in self.spell_names]
+    def evaluate_spells_sim(self, **kwargs):
+        sims = kwargs.pop('sims')
+        return [[self.cast_spell(sp, sim=True, **kwargs) for i in range(sims)] for sp in self.spell_names]
