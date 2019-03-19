@@ -4,6 +4,7 @@ from enemy import Enemy
 import random
 import numpy as np
 import pandas as pd
+import six
 
 class_modifier = {
     'Wizard': 'int',
@@ -42,7 +43,7 @@ class Engine(object):
         return chance
 
     def cast_spell(self, spell, enemy, slot_level=2, advantage=False, sim=False, rounds=1, range_enemies=1, web=False):
-        if isinstance(spell, basestring):
+        if isinstance(spell, six.string_types):
             spell = self.get_spell(spell)
 
         spell_class = spell['class']
@@ -56,26 +57,28 @@ class Engine(object):
         damage = 0
         for attack in spell.attack:
 
-            continuing_bonus = 0
-            continuing = bool(attack.get('continuing', False))
-
-            if continuing and rounds <= 1:
-                continue
-
-            if continuing or spell_level == 0:
-                max_rounds = float(attack.get('max_rounds', np.inf))
-                continuing_bonus += int(min(rounds - 1, max_rounds - 1))
-
             hit_type = attack.attrib['hit_type']
             attack_damage = 0
             attack_times = int(attack.attrib.get('times', 1)) + higher_slot * int(attack.attrib.get('level_bonus', 0))
 
-            enemy_bonus = 0
+            continuing_bonus = 0
+            continuing = bool(attack.get('continuing', False))
+
+            if continuing or spell_level == 0:
+                max_rounds = float(attack.get('max_rounds', np.inf))
+                continuing_bonus += int(min(rounds-1, max_rounds-1))
+
+                if spell_level == 0:
+                    continuing_bonus += 1
+
+                attack_times = attack_times * continuing_bonus
+
+            enemy_bonus = 1
             if attack.get('radius'):
                 enemy_bonus += range_enemies - 1
+            attack_times *= enemy_bonus
 
-            total_times = attack_times + enemy_bonus + continuing_bonus
-            for i in range(total_times):
+            for i in range(attack_times):
                 hit_chance = 0
                 spell_dc = self.character.modifiers[class_modifier[spell_class]] + self.character.proficiency
                 if hit_type == 'spell_attack':
