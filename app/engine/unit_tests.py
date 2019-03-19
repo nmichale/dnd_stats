@@ -19,7 +19,7 @@ class UnitTests(unittest.TestCase):
 
 
     def test_one_spell(self):
-        print(eng.cast_spell("Witch Bolt", self.test_enemy1, slot_level=3, range_enemies=1))
+        print(eng.cast_spell("Fire Ball", self.test_enemy1, slot_level=2, range_enemies=1))
 
 
     def test_all_spells(function):

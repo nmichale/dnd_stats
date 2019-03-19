@@ -173,9 +173,13 @@ class Engine(object):
 
         return damage
 
-    def evaluate_spells_exp_v(self, **kwargs):
-        return [self.cast_spell(sp, **kwargs) for sp in self.spell_names]
+    def evaluate_spells_exp_v(self, spells=None, **kwargs):
+        if spells is None:
+            spells = self.spell_names
+        return [self.cast_spell(sp, **kwargs) for sp in spells]
 
-    def evaluate_spells_sim(self, **kwargs):
+    def evaluate_spells_sim(self, spells=None, **kwargs):
         sims = kwargs.pop('sims')
-        return [[self.cast_spell(sp, sim=True, **kwargs) for i in range(sims)] for sp in self.spell_names]
+        if spells is None:
+            spells = self.spell_names
+        return [[self.cast_spell(sp, sim=True, **kwargs) for i in range(sims)] for sp in spells]

@@ -31,17 +31,19 @@ def default_interact(update):
                     range_enemies=widgets.IntSlider(**RANGE_ENEMIES_SLIDER))
 
 
-def expected_damage(character='Darthur', figsize=(8,4), rotate=False, ylim=30):
+def expected_damage(character='Darthur', figsize=(8,4), rotate=False, ylim=30, show=None):
     eng = engine.Engine(character)
+    if show is None:
+        show = eng.spell_names
     fig = plt.figure(figsize=figsize)
     ax = plt.gca()
     ax.set_ylim(top=ylim)
 
     e = enemy.create_enemy()
 
-    bars = ax.bar(eng.spell_names, eng.evaluate_spells_exp_v(enemy=e))
+    bars = ax.bar(show, eng.evaluate_spells_exp_v(spells=show, enemy=e))
     if rotate:
-        ax.set_xticklabels(eng.spell_names, rotation=45, ha="right")
+        ax.set_xticklabels(show, rotation=45, ha="right")
     plt.title('Expected Damage')
     plt.ylabel('Damage')
     plt.show()
@@ -52,7 +54,7 @@ def expected_damage(character='Darthur', figsize=(8,4), rotate=False, ylim=30):
                armor_class=STARTING_AC, slot_level=STARTING_SLOT, advantage=STARTING_ADVANTAGE,
                rounds=STARTING_ROUNDS, range_enemies=STARTING_RANGE_ENEMIES, web=STARTING_WEB):
         e = enemy.create_enemy(dex=dex, con=con, str=_str, armor_class=armor_class)
-        calcs = eng.evaluate_spells_exp_v(enemy=e, slot_level=slot_level, advantage=advantage, rounds=rounds,
+        calcs = eng.evaluate_spells_exp_v(show, enemy=e, slot_level=slot_level, advantage=advantage, rounds=rounds,
                                           range_enemies=range_enemies, web=web)
         for i in range(len(texts)):
             texts.pop().remove()
@@ -64,8 +66,10 @@ def expected_damage(character='Darthur', figsize=(8,4), rotate=False, ylim=30):
 
     return default_interact(update)
 
-def distribution(character='Darthur', figsize=(8,6), bins=50, sims=10000):
+def distribution(character='Darthur', figsize=(8,6), bins=50, sims=10000, show=None):
     eng = engine.Engine(character)
+    if show is None:
+        show = eng.spell_names
 
     def plot_cdf(data, ax):
         data_sorted = np.sort(data)
@@ -78,10 +82,10 @@ def distribution(character='Darthur', figsize=(8,6), bins=50, sims=10000):
         fig, ax = plt.subplots(nrows=2, ncols=1, figsize=(10, 6))
         e = enemy.create_enemy(dex=dex, con=con, str=_str, armor_class=armor_class)
 
-        sample_list = eng.evaluate_spells_sim(enemy=e, slot_level=slot_level, advantage=advantage, sims=sims, rounds=rounds,
+        sample_list = eng.evaluate_spells_sim(show, enemy=e, slot_level=slot_level, advantage=advantage, sims=sims, rounds=rounds,
                                           range_enemies=range_enemies, web=web)
 
-        ax[0].hist(sample_list, bins, label=eng.spell_names)
+        ax[0].hist(sample_list, bins, label=show)
         ax[0].legend(loc='upper right')
 
         ticks_y = ticker.FuncFormatter(lambda x, pos: '{0:g}'.format(x / sims))
