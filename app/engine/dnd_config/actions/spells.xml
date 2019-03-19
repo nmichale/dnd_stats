@@ -83,9 +83,9 @@
                 <sides>6</sides>
             </roll>
         </attack>
-        <attack continuing="True" max_rounds="3" level_bonus="2" hit_type="saving_throw" modifier="dex" radius="5" damage_type="fire">
+        <attack continuing="True" times="2" max_rounds="3" level_bonus="2" hit_type="saving_throw" modifier="dex" radius="5" damage_type="fire">
             <roll>
-                <num>4</num>
+                <num>2</num>
                 <sides>6</sides>
             </roll>
         </attack>
