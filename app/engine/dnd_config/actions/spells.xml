@@ -4,9 +4,9 @@
         <name>Fire Bolt</name>
         <level>0</level>
         <class>Wizard</class>
-        <attack hit_type="spell_attack" times="1">
+        <attack hit_type="spell_attack" times="1" damage_type="fire">
             <roll>
-                <num>2</num>
+                <num level_bonus="1" bonus_levels="5,11,17">1</num>
                 <sides>10</sides>
             </roll>
         </attack>
@@ -15,7 +15,7 @@
         <name>Hellish Rebuke</name>
         <level>1</level>
         <class>Warlock</class>
-        <attack hit_type="saving_throw" times="1" modifier="dex" half_dmg_fail="True">
+        <attack hit_type="saving_throw" times="1" modifier="dex" half_dmg_fail="True" damage_type="fire">
             <roll>
                 <num level_bonus="1">2</num>
                 <sides>10</sides>
@@ -26,7 +26,7 @@
         <name>Chromatic Orb</name>
         <level>1</level>
         <class>Wizard</class>
-        <attack hit_type="spell_attack" times="1">
+        <attack hit_type="spell_attack" times="1" damage_type="fire,acid,cold,lightning,poison,thunder">
             <roll>
                 <num level_bonus="1">3</num>
                 <sides>8</sides>
@@ -37,7 +37,7 @@
         <name>Magic Missile</name>
         <level>1</level>
         <class>Wizard</class>
-        <attack hit_type="auto" times="3" level_bonus="1">
+        <attack hit_type="auto" times="3" level_bonus="1" damage_type="bludgeoning">
             <roll plus="1">
                 <num>1</num>
                 <sides>4</sides>
@@ -48,7 +48,7 @@
         <name>Fire Ball</name>
         <level>3</level>
         <class>Wizard</class>
-        <attack hit_type="saving_throw" times="1" half_dmg_fail="True" modifier="dex" radius="20">
+        <attack hit_type="saving_throw" times="1" half_dmg_fail="True" modifier="dex" radius="20" damage_type="fire">
             <roll>
                 <num level_bonus="1">8</num>
                 <sides>6</sides>
@@ -59,13 +59,14 @@
         <name>Witch Bolt</name>
         <level>1</level>
         <class>Wizard</class>
-        <attack hit_type="spell_attack" times="1">
+        <attack hit_type="spell_attack" times="1" damage_type="lightning">
             <roll>
                 <num level_bonus="1">1</num>
                 <sides>12</sides>
             </roll>
         </attack>
-        <attack continuing="True" hit_type="auto">
+        <!--This is technically auto after a successful first hit. Expected value is the same-->
+        <attack continuing="True" hit_type="spell_attack" times="1" damage_type="lightning">
             <roll>
                 <num>1</num>
                 <sides>12</sides>
@@ -76,15 +77,54 @@
         <name>Melf's Minute Meteors</name>
         <level>3</level>
         <class>Wizard</class>
-        <attack hit_type="saving_throw" times="2" half_dmg_fail="True" modifier="dex" radius="5">
+        <attack hit_type="saving_throw" times="2" half_dmg_fail="True" modifier="dex" radius="5" damage_type="fire">
             <roll>
                 <num>2</num>
                 <sides>6</sides>
             </roll>
         </attack>
-        <attack continuing="True" max_rounds="3" level_bonus="2" hit_type="saving_throw" modifier="dex" radius="5">
+        <attack continuing="True" max_rounds="3" level_bonus="2" hit_type="saving_throw" modifier="dex" radius="5" damage_type="fire">
             <roll>
                 <num>4</num>
+                <sides>6</sides>
+            </roll>
+        </attack>
+    </spell>
+    <spell>
+        <name>Thunderwave</name>
+        <level>1</level>
+        <class>Wizard</class>
+        <attack hit_type="saving_throw" times="1" half_dmg_fail="True" modifier="con" radius="7.5" damage_type="thunder">
+            <roll>
+                <num level_bonus="1">2</num>
+                <sides>8</sides>
+            </roll>
+        </attack>
+    </spell>
+    <spell>
+        <name>Web</name>
+        <level>1</level>
+        <class>Wizard</class>
+        <attack hit_type="auto" times="1" damage_type="fire">
+            <roll>
+                <num>2</num>
+                <sides>4</sides>
+            </roll>
+        </attack>
+    </spell>
+    <spell>
+        <name>Maximilian's Earthen Grasp</name>
+        <level>1</level>
+        <class>Wizard</class>
+        <attack hit_type="saving_throw" modifier="str" times="1">
+            <roll>
+                <num>2</num>
+                <sides>6</sides>
+            </roll>
+        </attack>
+        <attack hit_type="saving_throw" continuing="True" modifier="str" times="1">
+            <roll>
+                <num>2</num>
                 <sides>6</sides>
             </roll>
         </attack>

@@ -41,7 +41,7 @@ class Engine(object):
         chance = max(min(float(num)/float(den),1),0)
         return chance
 
-    def cast_spell(self, spell, enemy, slot_level=2, advantage=False, sim=False, rounds=1, range_enemies=1):
+    def cast_spell(self, spell, enemy, slot_level=2, advantage=False, sim=False, rounds=1, range_enemies=1, web=False):
         if isinstance(spell, basestring):
             spell = self.get_spell(spell)
 
@@ -62,9 +62,8 @@ class Engine(object):
             if continuing and rounds <= 1:
                 continue
 
-            max_rounds = float(attack.get('max_rounds', np.inf))
-
             if continuing or spell_level == 0:
+                max_rounds = float(attack.get('max_rounds', np.inf))
                 continuing_bonus += int(min(rounds - 1, max_rounds - 1))
 
             hit_type = attack.attrib['hit_type']
@@ -136,7 +135,13 @@ class Engine(object):
                     num = die.num
                     num_bonus = int(die.num.get('level_bonus', 0))
                     if num_bonus > 0:
-                        num += higher_slot * num_bonus
+                        bonus_levels = die.num.get('bonus_levels')
+                        if bonus_levels is not None:
+                            bonus_levels = map(int, bonus_levels.split(','))
+                            level_bonus = sum([1 if self.character.level >= l else 0 for l in bonus_levels])
+                            num += level_bonus * num_bonus
+                        else:
+                            num += higher_slot * num_bonus
 
                     # Critical Hit
                     if sim and hit_type == 'spell_attack' and hit_roll == 20:
@@ -159,6 +164,12 @@ class Engine(object):
                     attack_damage += (1.0 - hit_chance) * (rolls / 2.0)
 
             damage += attack_damage
+
+            damage_type = attack.get('damage_type')
+            if damage_type:
+                damage_type = damage_type.split(',')
+                if web and 'fire' in damage_type and spell.name != 'Web':
+                    damage += self.cast_spell('Web', enemy, 2, advantage, sim, rounds, range_enemies, False)
 
         return damage
 

@@ -5,14 +5,15 @@ import enemy
 import numpy as np
 import matplotlib.ticker as ticker
 
-STARTING_DEX = 0
+STARTING_MOD = 0
 STARTING_SLOT = 2
 STARTING_AC = 10
 STARTING_ADVANTAGE = False
 STARTING_ROUNDS = 1
 STARTING_RANGE_ENEMIES = 1
+STARTING_WEB = False
 
-DEX_SLIDER = dict(min=-10, max=10, step=1, value=STARTING_DEX)
+MOD_SLIDER = dict(min=-10, max=10, step=1, value=STARTING_MOD)
 AC_SLIDER = dict(min=0, max=30, step=1, value=STARTING_AC)
 SLOT_SLIDER = dict(min=1, max=9, step=1, value=STARTING_SLOT)
 ROUNDS_SLIDER = dict(min=1, max=10, step=1, value=STARTING_ROUNDS)
@@ -20,11 +21,14 @@ RANGE_ENEMIES_SLIDER = dict(min=1, max=10, step=1, value=STARTING_RANGE_ENEMIES)
 
 
 def default_interact(update):
-    return interact(update, dex=widgets.IntSlider(**DEX_SLIDER),
-                            armor_class=widgets.IntSlider(**AC_SLIDER),
-                            slot_level=widgets.IntSlider(**SLOT_SLIDER),
-                            rounds=widgets.IntSlider(**ROUNDS_SLIDER),
-                            range_enemies=widgets.IntSlider(**RANGE_ENEMIES_SLIDER))
+    return interact(update,
+                    dex=widgets.IntSlider(**MOD_SLIDER),
+                    con=widgets.IntSlider(**MOD_SLIDER),
+                    _str=widgets.IntSlider(**MOD_SLIDER),
+                    armor_class=widgets.IntSlider(**AC_SLIDER),
+                    slot_level=widgets.IntSlider(**SLOT_SLIDER),
+                    rounds=widgets.IntSlider(**ROUNDS_SLIDER),
+                    range_enemies=widgets.IntSlider(**RANGE_ENEMIES_SLIDER))
 
 
 def expected_damage(character='Darthur', figsize=(8,4), rotate=False, ylim=30):
@@ -37,18 +41,19 @@ def expected_damage(character='Darthur', figsize=(8,4), rotate=False, ylim=30):
 
     bars = ax.bar(eng.spell_names, eng.evaluate_spells_exp_v(enemy=e))
     if rotate:
-        plt.xticks(rotation=45)
+        ax.set_xticklabels(eng.spell_names, rotation=45, ha="right")
     plt.title('Expected Damage')
     plt.ylabel('Damage')
     plt.show()
 
     texts = []
 
-    def update(dex=STARTING_DEX, armor_class=STARTING_AC, slot_level=STARTING_SLOT, advantage=STARTING_ADVANTAGE,
-               rounds=STARTING_ROUNDS, range_enemies=STARTING_RANGE_ENEMIES):
-        e = enemy.create_enemy(dex=dex, armor_class=armor_class)
+    def update(dex=STARTING_MOD, con=STARTING_MOD, _str=STARTING_MOD,
+               armor_class=STARTING_AC, slot_level=STARTING_SLOT, advantage=STARTING_ADVANTAGE,
+               rounds=STARTING_ROUNDS, range_enemies=STARTING_RANGE_ENEMIES, web=STARTING_WEB):
+        e = enemy.create_enemy(dex=dex, con=con, str=_str, armor_class=armor_class)
         calcs = eng.evaluate_spells_exp_v(enemy=e, slot_level=slot_level, advantage=advantage, rounds=rounds,
-                                          range_enemies=range_enemies)
+                                          range_enemies=range_enemies, web=web)
         for i in range(len(texts)):
             texts.pop().remove()
         for i, (bar, calc) in enumerate(zip(bars, calcs)):
@@ -67,13 +72,14 @@ def distribution(character='Darthur', figsize=(8,6), bins=50, sims=10000):
         p = 1. * np.arange(len(data)) / (len(data) - 1)
         ax.plot(data_sorted, p)
 
-    def update(dex=STARTING_DEX, armor_class=STARTING_AC, slot_level=STARTING_SLOT, advantage=STARTING_ADVANTAGE,
-               rounds=STARTING_ROUNDS, range_enemies=STARTING_RANGE_ENEMIES):
+    def update(dex=STARTING_MOD, con=STARTING_MOD, _str=STARTING_MOD,
+               armor_class=STARTING_AC, slot_level=STARTING_SLOT, advantage=STARTING_ADVANTAGE,
+               rounds=STARTING_ROUNDS, range_enemies=STARTING_RANGE_ENEMIES, web=STARTING_WEB):
         fig, ax = plt.subplots(nrows=2, ncols=1, figsize=(10, 6))
-        e = enemy.create_enemy(dex=dex, armor_class=armor_class)
+        e = enemy.create_enemy(dex=dex, con=con, str=_str, armor_class=armor_class)
 
         sample_list = eng.evaluate_spells_sim(enemy=e, slot_level=slot_level, advantage=advantage, sims=sims, rounds=rounds,
-                                          range_enemies=range_enemies)
+                                          range_enemies=range_enemies, web=web)
 
         ax[0].hist(sample_list, bins, label=eng.spell_names)
         ax[0].legend(loc='upper right')
