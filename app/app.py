@@ -2,6 +2,14 @@ import warnings
 warnings.filterwarnings("ignore", message="numpy.dtype size changed")
 warnings.filterwarnings("ignore", message="numpy.ufunc size changed")
 
+import matplotlib
+matplotlib.use('Agg')
+
+# Monkey patch the show command to disable, since this pauses the thread.
+import matplotlib.pyplot
+import matplotlib.pyplot.mpld3
+matplotlib.pyplot.show = matplotlib.pytplit.pld3.show
+
 from api_app import app as api
 from ui import app as gui
 from werkzeug.wsgi import DispatcherMiddleware

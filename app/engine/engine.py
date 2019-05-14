@@ -59,10 +59,12 @@ class Engine(object):
 
             hit_type = attack.attrib['hit_type']
             attack_damage = 0
-            attack_times = int(attack.attrib.get('times', 1)) + higher_slot * int(attack.attrib.get('level_bonus', 0))
+            attack_times = int(attack.attrib.get('times', 1))
 
             continuing_bonus = 0
             continuing = bool(attack.get('continuing', False))
+
+            times_bonus = higher_slot * int(attack.attrib.get('level_bonus', 0))
 
             if continuing or spell_level == 0:
                 max_rounds = float(attack.get('max_rounds', np.inf))
@@ -72,6 +74,8 @@ class Engine(object):
                     continuing_bonus += 1
 
                 attack_times = attack_times * continuing_bonus
+            else:
+                attack_times += times_bonus
 
             enemy_bonus = 1
             if attack.get('radius'):

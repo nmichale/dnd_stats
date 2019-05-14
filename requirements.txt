@@ -13,3 +13,4 @@ connexion==2.2.0
 ujson==1.35
 futures==3.2.0
 requests==2.21.0
+mpld3==0.3

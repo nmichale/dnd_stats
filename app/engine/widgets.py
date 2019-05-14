@@ -6,8 +6,8 @@ import numpy as np
 import matplotlib.ticker as ticker
 
 STARTING_MOD = 0
-STARTING_SLOT = 2
-STARTING_AC = 10
+STARTING_SLOT = 1
+STARTING_AC = 12
 STARTING_ADVANTAGE = False
 STARTING_ROUNDS = 1
 STARTING_RANGE_ENEMIES = 1
@@ -24,6 +24,7 @@ def default_interact(update):
     return interact(update,
                     dex=widgets.IntSlider(**MOD_SLIDER),
                     con=widgets.IntSlider(**MOD_SLIDER),
+                    wis=widgets.IntSlider(**MOD_SLIDER),
                     _str=widgets.IntSlider(**MOD_SLIDER),
                     armor_class=widgets.IntSlider(**AC_SLIDER),
                     slot_level=widgets.IntSlider(**SLOT_SLIDER),
@@ -50,10 +51,10 @@ def expected_damage(character='Darthur', figsize=(8,4), rotate=False, ylim=30, s
 
     texts = []
 
-    def update(dex=STARTING_MOD, con=STARTING_MOD, _str=STARTING_MOD,
+    def update(dex=STARTING_MOD, con=STARTING_MOD, wis=STARTING_MOD, _str=STARTING_MOD,
                armor_class=STARTING_AC, slot_level=STARTING_SLOT, advantage=STARTING_ADVANTAGE,
                rounds=STARTING_ROUNDS, range_enemies=STARTING_RANGE_ENEMIES, web=STARTING_WEB):
-        e = enemy.create_enemy(dex=dex, con=con, str=_str, armor_class=armor_class)
+        e = enemy.create_enemy(dex=dex, con=con, wis=wis, str=_str, armor_class=armor_class)
         calcs = eng.evaluate_spells_exp_v(show, enemy=e, slot_level=slot_level, advantage=advantage, rounds=rounds,
                                           range_enemies=range_enemies, web=web)
         for i in range(len(texts)):
@@ -76,11 +77,11 @@ def distribution(character='Darthur', figsize=(8,6), bins=50, sims=10000, show=N
         p = 1. * np.arange(len(data)) / (len(data) - 1)
         ax.plot(data_sorted, p)
 
-    def update(dex=STARTING_MOD, con=STARTING_MOD, _str=STARTING_MOD,
+    def update(dex=STARTING_MOD, con=STARTING_MOD, wis=STARTING_MOD, _str=STARTING_MOD,
                armor_class=STARTING_AC, slot_level=STARTING_SLOT, advantage=STARTING_ADVANTAGE,
                rounds=STARTING_ROUNDS, range_enemies=STARTING_RANGE_ENEMIES, web=STARTING_WEB):
         fig, ax = plt.subplots(nrows=2, ncols=1, figsize=(10, 6))
-        e = enemy.create_enemy(dex=dex, con=con, str=_str, armor_class=armor_class)
+        e = enemy.create_enemy(dex=dex, con=con, wis=wis, str=_str, armor_class=armor_class)
 
         sample_list = eng.evaluate_spells_sim(show, enemy=e, slot_level=slot_level, advantage=advantage, sims=sims, rounds=rounds,
                                           range_enemies=range_enemies, web=web)
